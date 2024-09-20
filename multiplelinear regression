@@ -1,0 +1,45 @@
+import numpy as np
+
+class MultipleRegression:
+    def __init__(self, X, y):
+        self.x = np.array(X)  
+        self.y = np.array(y)  
+        self.m = np.zeros(self.x.shape[1]) 
+        self.b = 0  
+        self.n = self.x.shape[0] 
+
+    def data_scaling(self, method='minmax'):
+       
+        if method == 'minmax':
+            self.minvalues = np.min(self.x, axis=0)
+            self.maxvalues = np.max(self.x, axis=0)
+      
+            self.x = (self.x - self.minvalues) / (self.maxvalues - self.minvalues)
+        elif method == 'standardize':
+            self.mean = np.mean(self.x, axis=0)
+            self.std = np.std(self.x, axis=0)
+            self.x = (self.x - self.mean) / self.std
+
+    def fit(self, learning_rate=0.001, epochs=1000):
+        
+        for i in range(epochs):
+           
+            y_pred = np.dot(self.x, self.m.T) + self.b
+         
+            cost = np.mean((y_pred - self.y) ** 2)
+            
+            m_gradient = (-2/self.n) * np.dot(self.x.T, (self.y - y_pred))
+          
+            b_gradient = (-2/self.n) * np.sum(self.y - y_pred)
+            
+           
+            self.m -= learning_rate * m_gradient
+            self.b -= learning_rate * b_gradient
+            
+            if i % 10 == 0:
+                print(f"Iteration {i}, Cost: {cost}")
+
+    def predict(self, x):
+        x = np.array(x)
+        x = (x - self.minvalues) / (self.maxvalues - self.minvalues)
+        return np.dot(x, self.m) + self.b
